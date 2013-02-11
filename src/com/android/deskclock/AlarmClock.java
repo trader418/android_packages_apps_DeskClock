@@ -437,15 +437,7 @@ public class AlarmClock extends Activity implements LoaderManager.LoaderCallback
         private final boolean mHasVibrator;
 
         // This determines the order in which it is shown and processed in the UI.
-        private final int[] DAY_ORDER = new int[] {
-                Calendar.SUNDAY,
-                Calendar.MONDAY,
-                Calendar.TUESDAY,
-                Calendar.WEDNESDAY,
-                Calendar.THURSDAY,
-                Calendar.FRIDAY,
-                Calendar.SATURDAY,
-        };
+        private final int[] DAY_ORDER;
 
         public class ItemHolder {
 
@@ -463,6 +455,7 @@ public class AlarmClock extends Activity implements LoaderManager.LoaderCallback
             ViewGroup[] dayButtonParents = new ViewGroup[7];
             ToggleButton[] dayButtons = new ToggleButton[7];
             CheckBox vibrate;
+            CheckBox incvol;
             ViewGroup collapse;
             TextView ringtone;
 
@@ -522,6 +515,16 @@ public class AlarmClock extends Activity implements LoaderManager.LoaderCallback
 
             mHasVibrator = ((Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE))
                     .hasVibrator();
+
+
+            DAY_ORDER = new int[7];
+            int firstDay = Calendar.getInstance().getFirstDayOfWeek();
+            int day;
+            for(day = 0; day < 7; day++)
+            {
+                DAY_ORDER[day] = firstDay;
+                firstDay = firstDay % 7 + 1;
+            }
         }
 
         public void removeSelectedId(int id) {
@@ -591,6 +594,7 @@ public class AlarmClock extends Activity implements LoaderManager.LoaderCallback
                 holder.dayButtonParents[i] = viewgroup;
             }
             holder.vibrate = (CheckBox) view.findViewById(R.id.vibrate_onoff);
+            holder.incvol = (CheckBox) view.findViewById(R.id.incvol_onoff);
             holder.collapse = (ViewGroup) view.findViewById(R.id.collapse);
             holder.ringtone = (TextView) view.findViewById(R.id.choose_ringtone);
 
@@ -871,6 +875,34 @@ public class AlarmClock extends Activity implements LoaderManager.LoaderCallback
                         itemHolder.vibrate.setTextColor(mColorDim);
                     }
                     alarm.vibrate = checked;
+                    asyncUpdateAlarm(alarm, false);
+                }
+            });
+
+            itemHolder.incvol.setVisibility(View.VISIBLE);
+            if (!alarm.incvol) {
+                itemHolder.incvol.setChecked(false);
+                itemHolder.incvol.setTextColor(mColorDim);
+            } else {
+                itemHolder.incvol.setChecked(true);
+                itemHolder.incvol.setTextColor(mColorLit);
+            }
+            itemHolder.incvol.setOnLongClickListener(mLongClickListener);
+
+            itemHolder.incvol.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    final boolean checked = ((CheckBox) v).isChecked();
+                    //When action mode is on - simulate long click
+                    if (doLongClick(v)) {
+                        return;
+                    }
+                    if (checked) {
+                        itemHolder.incvol.setTextColor(mColorLit);
+                    } else {
+                        itemHolder.incvol.setTextColor(mColorDim);
+                    }
+                    alarm.incvol = checked;
                     asyncUpdateAlarm(alarm, false);
                 }
             });
