@@ -474,7 +474,7 @@ public class AlarmActivity extends AppCompatActivity
             snoozeFraction = getFraction(alarmLeft, mSnoozeButton.getRight(), x);
             dismissFraction = getFraction(alarmRight, mDismissButton.getLeft(), x);
         }
-        //setAnimatedFractions(snoozeFraction, dismissFraction);
+        setAnimatedFractions(snoozeFraction, dismissFraction);
 
         switch (motionEvent.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
@@ -548,7 +548,7 @@ public class AlarmActivity extends AppCompatActivity
      */
     private void resetAnimations() {
         // Set the animators to their initial values.
-        //setAnimatedFractions(0.0f /* snoozeFraction */, 0.0f /* dismissFraction */);
+        setAnimatedFractions(0.0f /* snoozeFraction */, 0.0f /* dismissFraction */);
         // Restart the pulse.
         mPulseAnimator.setRepeatCount(ValueAnimator.INFINITE);
         if (!mPulseAnimator.isStarted()) {
@@ -566,7 +566,7 @@ public class AlarmActivity extends AppCompatActivity
         LogUtils.v(LOGTAG, "Snoozed: %s", mAlarmInstance);
 
         final int accentColor = Utils.obtainStyledColor(this, R.attr.colorAccent, Color.RED);
-        //setAnimatedFractions(1.0f /* snoozeFraction */, 0.0f /* dismissFraction */);
+        setAnimatedFractions(1.0f /* snoozeFraction */, 0.0f /* dismissFraction */);
 
         final int snoozeMinutes = AlarmStateManager.getSnoozedMinutes(this);
         final String infoText = getResources().getQuantityString(
@@ -592,7 +592,7 @@ public class AlarmActivity extends AppCompatActivity
         mAlarmHandled = true;
         LogUtils.v(LOGTAG, "Dismissed: %s", mAlarmInstance);
 
-        //setAnimatedFractions(0.0f /* snoozeFraction */, 1.0f /* dismissFraction */);
+        setAnimatedFractions(0.0f /* snoozeFraction */, 1.0f /* dismissFraction */);
 
         getAlertAnimator(mDismissButton, R.string.alarm_alert_off_text, null /* infoText */,
                 getString(R.string.alarm_alert_off_text) /* accessibilityText */,
@@ -620,12 +620,12 @@ public class AlarmActivity extends AppCompatActivity
         }
     }
 
-//    private void setAnimatedFractions(float snoozeFraction, float dismissFraction) {
-//        final float alarmFraction = Math.max(snoozeFraction, dismissFraction);
-//        AnimatorUtils.setAnimatedFraction(mAlarmAnimator, alarmFraction);
-//        AnimatorUtils.setAnimatedFraction(mSnoozeAnimator, snoozeFraction);
-//        AnimatorUtils.setAnimatedFraction(mDismissAnimator, dismissFraction);
-//    }
+    private void setAnimatedFractions(float snoozeFraction, float dismissFraction) {
+        final float alarmFraction = Math.max(snoozeFraction, dismissFraction);
+        AnimatorUtils.setAnimatedFraction(mAlarmAnimator, alarmFraction);
+        AnimatorUtils.setAnimatedFraction(mSnoozeAnimator, snoozeFraction);
+        AnimatorUtils.setAnimatedFraction(mDismissAnimator, dismissFraction);
+    }
 
     private float getFraction(float x0, float x1, float x) {
         return Math.max(Math.min((x - x0) / (x1 - x0), 1.0f), 0.0f);
